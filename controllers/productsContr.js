@@ -18,9 +18,8 @@ const listProducts = async (req, res) => {
 };
 
 const getProductById = async (req, res) => {
-  const { _id: owner } = req.user;
   const { productId } = req.params;
-  const answer = await Product.findOne({ _id: productId, owner });
+  const answer = await Product.findOne({ _id: productId});
   if (!answer) {
     throw HttpError(404);
   }
@@ -28,19 +27,17 @@ const getProductById = async (req, res) => {
 };
 
 const addProduct = async (req, res) => {
-  const { _id: owner } = req.user;
-  const answer = await Product.create({ ...req.body, owner });
+  const answer = await Product.create({ ...req.body });
   res.status(201).json(answer);
 };
 
 const removeProduct = async (req, res) => {
-  const { _id: owner } = req.user;
   const { productId } = req.params;
-  const answer = await Product.findOneAndRemove({ _id: productId, owner });
+  const answer = await Product.findOneAndRemove({ _id: productId });
   if (!answer) {
     throw HttpError(404);
   }
-  res.json({ message: "Product deleted" });
+  res.json({ message: "Product deleted", ...answer });
 };
 
 const updateProduct = async (req, res) => {

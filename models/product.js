@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 const Joi = require("joi");
 const { mongooseHandleError } = require("../helpers");
 
-const PORDUCT_IMG_PARAMS = {
+const PRODUCT_IMG_PARAMS = {
   dimensions: {
     width: 473,
   },
@@ -26,7 +26,11 @@ const productSchema = new Schema({
     match: priceValidation,
     required: [true, "Set price for product"],
   },
-  productСoverURL: {
+  productCountry: {
+    type: String,
+    required: [true, "Set manufacturer country for product"],
+  },
+  productCoverURL: {
     type: String,
   },
   productPhotoURL: [
@@ -53,10 +57,13 @@ const schemaJoi = Joi.object({
     .required(),
   productPrice: Joi.number()
     .messages({ "any.required": "missing field - productPrice" })
-    // .pattern(priceValidation)
+    .pattern(priceValidation)
+    .required(),
+  productCountry: Joi.string()
+    .messages({ "any.required": "missing field - productCountry" })
     .required(),
   productCoverURL: Joi.string(),
-  productPhotoURL: Joi.string(),
+  productPhotoURL: Joi.array().items(Joi.string()),
   additionalAttributes: Joi.array().items(
     Joi.object({
       name: Joi.string(),
@@ -67,4 +74,4 @@ const schemaJoi = Joi.object({
 
 const Product = model("product", productSchema);
 
-module.exports = { Product, schemaJoi, PORDUCT_IMG_PARAMS };
+module.exports = { Product, schemaJoi, PRODUCT_IMG_PARAMS };
