@@ -10,7 +10,7 @@ const PRODUCT_IMG_PARAMS = {
   acceptableFileTypes: ["jpg", "jpeg", "png"],
 };
 
-const priceValidation = /^\d+(\.\d{2})?$/;
+const priceValidation = /^\d+(\.\d{1,2})?$/;        
 
 const productSchema = new Schema({
   productName: {
@@ -55,14 +55,14 @@ const schemaJoi = Joi.object({
   productCode: Joi.string()
     .messages({ "any.required": "missing field - productCode" })
     .required(),
-  productPrice: Joi.number()
+  productPrice: Joi.string()
     .messages({ "any.required": "missing field - productPrice" })
     .pattern(priceValidation)
     .required(),
   productCountry: Joi.string()
     .messages({ "any.required": "missing field - productCountry" })
     .required(),
-  productCoverURL: Joi.string(),
+  productCoverURL: Joi.any(),
   productPhotoURL: Joi.array().items(Joi.string()),
   additionalAttributes: Joi.array().items(
     Joi.object({
