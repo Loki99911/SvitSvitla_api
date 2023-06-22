@@ -11,7 +11,7 @@ router.get("/:productId", isValidId, ctrl.getProductById);
 router.post(
   "/",
   uploadCloudCover,
-  uploadCloudPhoto,
+  // uploadCloudPhoto,
   validateBody(schemaJoi),
   ctrl.addProduct
 );

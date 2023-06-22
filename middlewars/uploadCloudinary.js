@@ -5,18 +5,19 @@ const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const { HttpError, ctrlWrapper } = require("../helpers");
 
 const { CLOUDINARY_NAME, CLOUDINARY_KEY, CLOUDINARY_SECRET } = process.env;
-
+const { v4: uuidv4 } = require("uuid");
 cloudinary.config({
   cloud_name: CLOUDINARY_NAME,
   api_key: CLOUDINARY_KEY,
   api_secret: CLOUDINARY_SECRET,
 });
 
-const multerConfigCover = new CloudinaryStorage({
+const storageCover = new CloudinaryStorage({
   cloudinary,
   params: (req, file) => {
     const extension = file.originalname.split(".").pop();
-    const coverName = `${req.user._id}_cover.${extension}`;
+    const id = uuidv4();
+    const coverName = `${id}_cover.${extension}`;
     return {
       folder: "covers",
       allowed_formats: ["png", "jpeg"],
@@ -30,8 +31,10 @@ const multerConfigCover = new CloudinaryStorage({
 const multerConfigPhoto = new CloudinaryStorage({
   cloudinary,
   params: (req, file) => {
+    console.log("file",file);
+    const id = uuidv4();
     const extension = file.originalname.split(".").pop();
-    const photoName = `${req.user._id}_photo.${extension}`;
+    const photoName = `${id}_photo.${extension}`;
     return {
       folder: "photos",
       allowed_formats: ["png", "jpeg"],
@@ -56,6 +59,8 @@ const multerConfigCatalog = new CloudinaryStorage({
 });
 
 function photoFilter(req, file, cb) {
+  console.log(req);
+  console.log(file);
   if (
     file.mimetype === "image/jpeg" ||
     file.mimetype === "image/png"
@@ -87,7 +92,7 @@ function fileFilter(req, file, cb) {
 }
 
 const uploadCloudCover = multer({
-  storage: multerConfigCover,
+  storage: storageCover,
   photoFilter,
 });
 
@@ -102,7 +107,7 @@ const uploadCloudCatalog = multer({
 });
 
 module.exports = {
-  uploadCloudCover: ctrlWrapper(uploadCloudCover.single("cover")),
-  uploadCloudPhoto: ctrlWrapper(uploadCloudPhoto.array("photos", 12)),
+  uploadCloudCover: ctrlWrapper(uploadCloudCover.single("productCoverURL")),
+  uploadCloudPhoto: ctrlWrapper(uploadCloudPhoto.array("productPhotoURL", 4)),
   uploadCloudCatalog: ctrlWrapper(uploadCloudCatalog.single("catalog")),
 };
