@@ -2,24 +2,17 @@ const { HttpError, ctrlWrapper } = require("../helpers");
 const { Product } = require("../models/product");
 
 const listProducts = async (req, res) => {
-  // const { _id: owner} = req.user;
-  // // --- pagination&filtration ---
-  // const { page = 1, limit = 8, favorite } = req.params;
-  // const skip = (page - 1) * limit;
+  // --- pagination ---
+  const { page = 1, limit = 8 } = req.query;
+  const skip = (page - 1) * limit;
 
-  // const answer = await Product.find(
-  //   favorite ? { owner, favorite } : { owner },
-  //   "-__v",
-  //   { skip, limit }
-  // );
-  // res.json(answer);
-  const answer = await Product;
+  const answer = await Product.find({}, "-__v", { skip, limit });
   res.json(answer);
 };
 
 const getProductById = async (req, res) => {
   const { productId } = req.params;
-  const answer = await Product.findOne({ _id: productId});
+  const answer = await Product.findOne({ _id: productId });
   if (!answer) {
     throw HttpError(404);
   }

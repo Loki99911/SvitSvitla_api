@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const ctrl = require("../../controllers/catalogContr");
 const { validateBody, isValidId, uploadCloudCatalog, uploadCloudCover } = require("../../middlewars");
-const { catalogSchemaJoi } = require("../../models/user");
+const { catalogSchemaJoi } = require("../../models/catalog");
+
 
 router.get("/", ctrl.listCatalogs);
 router.post("/",uploadCloudCatalog, validateBody(catalogSchemaJoi), ctrl.addCatalog);

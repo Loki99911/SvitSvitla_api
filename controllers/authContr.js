@@ -6,6 +6,8 @@ const { SECRET_KEY } = process.env;
 
 const login = async (req, res) => {
   const { login, password } = req.body;
+    // const hashPassword = await bcrypt.hash(password, 10);
+    // console.log(hashPassword);
   const user = await User.findOne({ login });
 
   if (!user) {
