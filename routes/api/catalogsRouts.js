@@ -11,7 +11,6 @@ router.delete("/:catalogId", isValidId, ctrl.removeCatalog);
 router.put(
   "/:catalogId",
   isValidId,
-  uploadCloudCover,
   uploadCloudCatalog,
   validateBody(catalogSchemaJoi),
   ctrl.updateCatalog

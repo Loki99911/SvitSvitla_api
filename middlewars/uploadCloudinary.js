@@ -2,10 +2,11 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
-const { HttpError, ctrlWrapper } = require("../helpers");
+const { HttpError} = require("../helpers");
 
 const { CLOUDINARY_NAME, CLOUDINARY_KEY, CLOUDINARY_SECRET } = process.env;
 const { v4: uuidv4 } = require("uuid");
+
 cloudinary.config({
   cloud_name: CLOUDINARY_NAME,
   api_key: CLOUDINARY_KEY,
@@ -15,56 +16,42 @@ cloudinary.config({
 const storageCover = new CloudinaryStorage({
   cloudinary,
   params: (req, file) => {
+    let currentFolder;
+    switch (file.fieldname) {
+      case "productCoverURL":
+        currentFolder = "product/covers";
+        break;
+      case "productPhotoURL":
+        currentFolder = "product/photos";
+        break;
+      case "catalogCoverURL":
+        currentFolder = "catalog/covers";
+        break;
+      default:
+        break;
+    }
     const extension = file.originalname.split(".").pop();
     const id = uuidv4();
-    const coverName = `${id}_cover.${extension}`;
-    return {
-      folder: "covers",
-      allowed_formats: ["png", "jpeg"],
-      public_id: coverName,
-      transformation: [{ width: 473, crop: "fill" }],
-      max_bytes: 100000,
-    };
-  },
-});
+    const coverName = `${id}.${extension}`;
 
-const multerConfigPhoto = new CloudinaryStorage({
-  cloudinary,
-  params: (req, file) => {
-    console.log("file",file);
-    const id = uuidv4();
-    const extension = file.originalname.split(".").pop();
-    const photoName = `${id}_photo.${extension}`;
-    return {
-      folder: "photos",
-      allowed_formats: ["png", "jpeg"],
-      public_id: photoName,
-      transformation: [{ width: 473, crop: "fill" }],
-      max_bytes: 100000,
-    };
-  },
-});
-
-const multerConfigCatalog = new CloudinaryStorage({
-  cloudinary,
-  params: (req, file) => {
-    const extension = file.originalname.split(".").pop();
-    const catalogName = `${req.user._id}_catalog.${extension}`;
-    return {
-      folder: "catalogs",
-      allowed_formats: ["pdf"],
-      public_id: catalogName,
-    };
+    return file.fieldname !== "catalogFileURL"
+      ? {
+          folder: currentFolder,
+          allowed_formats: [("png", "jpeg")],
+          public_id: coverName,
+          transformation: [{ width: 473, crop: "fill" }],
+          max_bytes: 100000,
+        }
+      : {
+          folder: "catalog/files",
+          allowed_formats: ["pdf"],
+          public_id: catalogName,
+        };
   },
 });
 
 function photoFilter(req, file, cb) {
-  console.log(req);
-  console.log(file);
-  if (
-    file.mimetype === "image/jpeg" ||
-    file.mimetype === "image/png"
-  ) {
+  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
     cb(null, true);
   } else {
     cb(
@@ -77,37 +64,68 @@ function photoFilter(req, file, cb) {
 }
 
 function fileFilter(req, file, cb) {
-  if (
-    file.mimetype === "application/pdf"
-  ) {
+  if (file.mimetype === "application/pdf") {
     cb(null, true);
   } else {
     cb(
-      HttpError(
-        415,
-        "Unsupported image format. Choose file with extention pdf"
-      )
+      HttpError(415, "Unsupported image format. Choose file with extention pdf")
     );
   }
 }
 
-const uploadCloudCover = multer({
+const uploadCloudProduct = multer({
   storage: storageCover,
   photoFilter,
 });
 
-const uploadCloudPhoto = multer({
-  storage: multerConfigPhoto,
-  photoFilter,
+const uploadCloudCatalog = multer({
+  storage: storageCover,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      photoFilter(req, file, cb);
+    } else {
+      fileFilter(req, file, cb);
+    }
+  },
 });
 
-const uploadCloudCatalog = multer({
-  storage: multerConfigCatalog,
-  fileFilter,
-});
+const uploadCloudProductMiddleware = (req, res, next) => {
+  uploadCloudProduct.fields([
+    { name: "productCoverURL", maxCount: 1 },
+    { name: "productPhotoURL", maxCount: 8 },
+  ])(req, res, (err) => {
+    if (err) {
+      return next(err);
+    }
+    req.files.productCoverURL &&
+      (req.body.productCoverURL = req.files.productCoverURL[0].path);
+    req.files.productPhotoURL &&
+      (req.body.productPhotoURL = req.files.productPhotoURL.map(
+        ({ path }) => path
+      ));
+    next();
+  });
+};
+
+const uploadCloudCatalogMiddleware = (req, res, next) => {
+  uploadCloudCatalog.fields([
+    { name: "catalogCoverURL", maxCount: 1 },
+    { name: "catalogFileURL", maxCount: 1 },
+  ])(req, res, (err) => {
+    if (err) {
+      return next(err);
+    }
+    req.files.catalogCoverURL &&
+      (req.body.catalogCoverURL = req.files.catalogCoverURL[0].path);
+    req.files.catalogFileURL &&
+      (req.body.catalogFileURL = req.files.catalogFileURL.map(
+        ({ path }) => path
+      ));
+    next();
+  });
+};
 
 module.exports = {
-  uploadCloudCover: ctrlWrapper(uploadCloudCover.single("productCoverURL")),
-  uploadCloudPhoto: ctrlWrapper(uploadCloudPhoto.array("productPhotoURL", 4)),
-  uploadCloudCatalog: ctrlWrapper(uploadCloudCatalog.single("catalog")),
+  uploadCloudProduct: uploadCloudProductMiddleware,
+  uploadCloudCatalog: uploadCloudCatalogMiddleware,
 };
