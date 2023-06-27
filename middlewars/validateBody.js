@@ -2,9 +2,8 @@ const { json } = require("body-parser");
 const { HttpError } = require("../helpers");
 
 const validateBody = (schema) => {
-  
   const func = (req, res, next) => {
-    if (req.body.hasOwnProperty("additionalAttributes")) {
+    if (req.body.additionalAttributes) {
       req.body.additionalAttributes = JSON.parse(req.body.additionalAttributes);
     }
     const { error } = schema.validate(req.body);
