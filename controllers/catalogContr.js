@@ -16,9 +16,9 @@ const addCatalog = async (req, res) => {
 };
 
 const removeCatalog = async (req, res) => {
-  const { _id: owner } = req.user;
+  console.log(req.params);
   const { catalogId } = req.params;
-  const answer = await Catalog.findOneAndRemove({ _id: catalogId, owner });
+  const answer = await Catalog.findOneAndRemove({ _id: catalogId});
   if (!answer) {
     throw HttpError(404);
   }
@@ -27,9 +27,8 @@ const removeCatalog = async (req, res) => {
 
 const updateCatalog = async (req, res) => {
   const { catalogId } = req.params;
-  const { _id: owner } = req.user;
   const answer = await Catalog.findOneAndUpdate(
-    { _id: catalogId, owner },
+    { _id: catalogId},
     req.body,
     {
       new: true,
