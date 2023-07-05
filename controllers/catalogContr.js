@@ -16,13 +16,12 @@ const addCatalog = async (req, res) => {
 };
 
 const removeCatalog = async (req, res) => {
-  console.log(req.params);
   const { catalogId } = req.params;
-  const answer = await Catalog.findOneAndRemove({ _id: catalogId});
+  const answer = await Catalog.findOneAndRemove({ _id: catalogId });
   if (!answer) {
     throw HttpError(404);
   }
-  res.json({ message: "Catalog deleted" });
+  res.json({ message: "Catalog deleted", _id:answer._id});
 };
 
 const updateCatalog = async (req, res) => {

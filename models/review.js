@@ -11,9 +11,9 @@ const reviewSchema = new Schema({
     type: String,
     required: [true, "Set review"],
   },
-  negativeFeed: {
-    type: String,
-  },
+  // negativeFeed: {
+  //   type: String,
+  // },
 });
 
 reviewSchema.post("save", mongooseHandleError);
@@ -25,7 +25,7 @@ const reviewSchemaJoi = Joi.object({
   reviewText: Joi.string()
     .messages({ "any.required": "missing field - reviewText" })
     .required(),
-  negativeFeed: Joi.string(),
+  // negativeFeed: Joi.string(),
 });
 
 const Review = model("review", reviewSchema);
