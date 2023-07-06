@@ -106,7 +106,7 @@ const uploadCloudProductMiddleware = (req, res, next) => {
       ));
     req.body.productPhotoUrlOld &&
       (req.body.productPhotoURL = [
-        ...req.body.productPhotoURL,
+        ...JSON.parse(req.body.productPhotoURL),
         ...JSON.parse(req.body.productPhotoUrlOld),
       ]);
     delete req.body.productPhotoUrlOld;
