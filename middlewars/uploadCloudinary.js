@@ -2,7 +2,7 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
-const { HttpError} = require("../helpers");
+const { HttpError } = require("../helpers");
 
 const { CLOUDINARY_NAME, CLOUDINARY_KEY, CLOUDINARY_SECRET } = process.env;
 const { v4: uuidv4 } = require("uuid");
@@ -94,6 +94,7 @@ const uploadCloudProductMiddleware = (req, res, next) => {
     { name: "productCoverURL", maxCount: 1 },
     { name: "productPhotoURL", maxCount: 8 },
   ])(req, res, (err) => {
+    console.log(req.body.productPhotoURL);
     if (err) {
       return next(err);
     }
@@ -103,6 +104,12 @@ const uploadCloudProductMiddleware = (req, res, next) => {
       (req.body.productPhotoURL = req.files.productPhotoURL.map(
         ({ path }) => path
       ));
+    req.body.productPhotoUrlOld &&
+      (req.body.productPhotoURL = [
+        ...req.body.productPhotoURL,
+        ...JSON.parse(req.body.productPhotoUrlOld),
+      ]);
+    delete req.body.productPhotoUrlOld;
     next();
   });
 };
@@ -121,6 +128,7 @@ const uploadCloudCatalogMiddleware = (req, res, next) => {
       (req.body.catalogFileURL = req.files.catalogFileURL.map(
         ({ path }) => path
       ));
+
     next();
   });
 };

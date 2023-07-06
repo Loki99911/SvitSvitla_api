@@ -35,13 +35,9 @@ const removeProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   const { productId } = req.params;
-  const { _id: owner } = req.user;
   const answer = await Product.findOneAndUpdate(
-    { _id: productId, owner },
-    req.body,
-    {
-      new: true,
-    }
+    { _id: productId},
+    req.body
   );
   if (!answer) {
     throw HttpError(404);
