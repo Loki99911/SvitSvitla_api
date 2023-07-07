@@ -107,7 +107,9 @@ const uploadCloudProductMiddleware = (req, res, next) => {
     // console.log("Photo", req.body.productPhotoURL);
     // console.log("oldPhoto", JSON.parse(req.body.productPhotoUrlOld));
     const PhotoURL = req.body.productPhotoURL || [];
-    const PhotoUrlOld = JSON.parse(req.body.productPhotoUrlOld) || [];
+    const PhotoUrlOld = req.body.productPhotoUrlOld
+      ? JSON.parse(req.body.productPhotoUrlOld)
+      : [];
     req.body.productPhotoURL = [...PhotoURL, ...PhotoUrlOld];
     delete req.body.productPhotoUrlOld;
     console.log("CLOUD END");
