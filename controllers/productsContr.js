@@ -34,6 +34,7 @@ const removeProduct = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
+  console.log("CORTO START");
   const { productId } = req.params;
   const answer = await Product.findOneAndUpdate(
     { _id: productId},

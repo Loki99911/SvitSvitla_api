@@ -94,7 +94,6 @@ const uploadCloudProductMiddleware = (req, res, next) => {
     { name: "productCoverURL", maxCount: 1 },
     { name: "productPhotoURL", maxCount: 8 },
   ])(req, res, (err) => {
-    console.log(req.body.productPhotoURL);
     if (err) {
       return next(err);
     }
@@ -104,12 +103,14 @@ const uploadCloudProductMiddleware = (req, res, next) => {
       (req.body.productPhotoURL = req.files.productPhotoURL.map(
         ({ path }) => path
       ));
-    req.body.productPhotoUrlOld &&
-      (req.body.productPhotoURL = [
-        ...JSON.parse(req.body.productPhotoURL),
-        ...JSON.parse(req.body.productPhotoUrlOld),
-      ]);
+    // console.log("PATHS");
+    // console.log("Photo", req.body.productPhotoURL);
+    // console.log("oldPhoto", JSON.parse(req.body.productPhotoUrlOld));
+    const PhotoURL = req.body.productPhotoURL || [];
+    const PhotoUrlOld = JSON.parse(req.body.productPhotoUrlOld) || [];
+    req.body.productPhotoURL = [...PhotoURL, ...PhotoUrlOld];
     delete req.body.productPhotoUrlOld;
+    console.log("CLOUD END");
     next();
   });
 };
