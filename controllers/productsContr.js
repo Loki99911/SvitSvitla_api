@@ -3,11 +3,20 @@ const { Product } = require("../models/product");
 
 const listProducts = async (req, res) => {
   // --- pagination ---
-  const { page = 1, limit = 8 } = req.query;
+  const { page = 1, limit = 8, article } = req.query;
   const skip = (page - 1) * limit;
 
-  const answer = await Product.find({}, "-__v", { skip, limit });
-  res.json(answer);
+  const answer = await Product.find(
+    article ? { productCode: article } : {},
+    "-__v",
+    {
+      skip,
+      limit,
+    }
+  );
+
+  const count = await Product.find({});
+  res.json({ data: answer, total: count.length });
 };
 
 const getProductById = async (req, res) => {
@@ -36,10 +45,7 @@ const removeProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   console.log("CORTO START");
   const { productId } = req.params;
-  const answer = await Product.findOneAndUpdate(
-    { _id: productId},
-    req.body
-  );
+  const answer = await Product.findOneAndUpdate({ _id: productId }, req.body);
   if (!answer) {
     throw HttpError(404);
   }

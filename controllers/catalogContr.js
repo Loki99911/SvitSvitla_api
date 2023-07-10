@@ -7,7 +7,8 @@ const listCatalogs = async (req, res) => {
   const skip = (page - 1) * limit;
 
   const answer = await Catalog.find({}, "-__v", { skip, limit });
-  res.json(answer);
+  const count = await Catalog.find({});
+  res.json({ data: answer, total: count.length });
 };
 
 const addCatalog = async (req, res) => {
