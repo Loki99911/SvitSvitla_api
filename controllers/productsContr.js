@@ -3,19 +3,22 @@ const { Product } = require("../models/product");
 
 const listProducts = async (req, res) => {
   // --- pagination ---
-  const { page = 1, limit = 8, article } = req.query;
+  const { page = 1, limit = 8, article, filter } = req.query;
   const skip = (page - 1) * limit;
 
-  const answer = await Product.find(
-    article ? { productCode: article } : {},
-    "-__v",
-    {
-      skip,
-      limit,
-    }
-  );
+  let currentQuery = {};
+  if (article) {
+    currentQuery = { productCode: article };
+  } else if (filter) {
+    currentQuery = { productCategory: filter };
+  }
 
-  const count = await Product.find({});
+  const answer = await Product.find(currentQuery, "-__v", {
+    skip,
+    limit,
+  });
+
+  const count = await Product.find(currentQuery);
   res.json({ data: answer, total: count.length });
 };
 
