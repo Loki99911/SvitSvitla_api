@@ -7,9 +7,9 @@ const listProducts = async (req, res) => {
   const skip = (page - 1) * limit;
   console.log("article, filter", article, filter);
   let currentQuery = {};
-  if (article !== "null") {
+  if (article !== ("null" || "")) {
     currentQuery = { productCode: article };
-  } else if (filter !== "null") {
+  } else if (filter !== ("null" || "")) {
     currentQuery = { productCategory: filter };
   }
 
