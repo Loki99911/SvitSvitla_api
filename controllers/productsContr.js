@@ -5,7 +5,6 @@ const listProducts = async (req, res) => {
   // --- pagination ---
   const { page = 1, limit = 8, article, filter } = req.query;
   const skip = (page - 1) * limit;
-  console.log("article, filter", article, filter);
   let currentQuery = {};
   if (article !== ("null" || "")) {
     currentQuery = { productCode: article };
