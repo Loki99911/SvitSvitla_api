@@ -16,7 +16,7 @@ const catalogSchema = new Schema({
   },
   catalogFileURL: {
     type: String,
-    // required: [true, "Add catalog file"],
+    required: [true, "Add catalog file"],
   },
 });
 
@@ -30,9 +30,9 @@ const catalogSchemaJoi = Joi.object({
     .messages({ "any.required": "missing field - catalogYear" })
     .required(),
   catalogCoverURL: Joi.any(),
-  catalogFileURL: Joi.any(),
-  // .messages({ "any.required": "missing field - catalogFile" })
-  // .required(),
+  catalogFileURL: Joi.any()
+  .messages({ "any.required": "missing field - catalogFile" })
+  .required(),
 });
 
 const Catalog = model("catalog", catalogSchema);

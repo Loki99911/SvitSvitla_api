@@ -12,6 +12,7 @@ const listCatalogs = async (req, res) => {
 };
 
 const addCatalog = async (req, res) => {
+  console.log("CATALOG",req.body);
   const answer = await Catalog.create({ ...req.body });
   res.status(201).json(answer);
 };

@@ -27,12 +27,16 @@ const storageCover = new CloudinaryStorage({
       case "catalogCoverURL":
         currentFolder = "catalog/covers";
         break;
+      case "catalogFileURL":
+        currentFolder = "catalog/files";
+        break;
       default:
         break;
     }
     const extension = file.originalname.split(".").pop();
     const id = uuidv4();
     const coverName = `${id}.${extension}`;
+    const catalogName = `${id}.${extension}`;
 
     return file.fieldname !== "catalogFileURL"
       ? {
@@ -81,6 +85,7 @@ const uploadCloudProduct = multer({
 const uploadCloudCatalog = multer({
   storage: storageCover,
   fileFilter: (req, file, cb) => {
+    console.log("++++",file);
     if (file.mimetype.startsWith("image/")) {
       photoFilter(req, file, cb);
     } else {
@@ -123,15 +128,14 @@ const uploadCloudCatalogMiddleware = (req, res, next) => {
     { name: "catalogFileURL", maxCount: 1 },
   ])(req, res, (err) => {
     if (err) {
+      console.log("ALARM",err);
       return next(err);
     }
     req.files.catalogCoverURL &&
       (req.body.catalogCoverURL = req.files.catalogCoverURL[0].path);
     req.files.catalogFileURL &&
-      (req.body.catalogFileURL = req.files.catalogFileURL.map(
-        ({ path }) => path
-      ));
-
+      (req.body.catalogFileURL = req.files.catalogFileURL[0].path);
+console.log(">>>uploadCloudCatalog", req.body);
     next();
   });
 };
